@@ -1,0 +1,491 @@
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="UTF-8">
+			<title></title>
+			<style>
+				body{ background:#bfbfff url(img/body_bg.gif) bottom repeat-x;overflow:hidden; height:550px; width:100%;z-index: 0px;}
+				#score{ width:262px; height:185px; position:absolute; left:360px; top:10px; background:url(img/scroe.png) no-repeat; font-size:30px; color:#fff; text-align:center;  padding-top:6px;}
+				#wrap{
+					width: 300px;
+					height: 400px;
+					border: 8px solid #9785f3;
+					border-radius:6px;
+					margin: 90px 440px;
+					overflow: hidden;
+				}
+				#gameContent{
+					width: 600px;
+					height: 400px;
+					background:url(img/bg.jpeg) fixed;
+					position: relative;
+					left: 0px;
+					z-index: 0px;
+
+				}
+				#leftdiv{
+					width: 80px;
+					height: 200px;
+					background: black;
+					position: absolute;
+					bottom: 0;
+				}
+				#hero{
+					width: 40px;
+					height: 40px;
+
+					background:url(img/monkey.gif);
+					position: absolute;
+						left: 0;
+						top:160px;
+					}
+			
+				#middlediv{
+						width: 80px;
+						height: 200px;
+					background: black;
+					position: absolute;
+					bottom: 0;
+					left: 200px;
+					text-align:center;
+					
+				}
+				#rightdiv{
+					width: 80px;
+					height: 200px;
+					background: black;
+					position: absolute;
+					bottom: 0;
+					left: 400px;
+				}
+				#star{
+					background:url(img/star1.png);
+
+					background-repeat: no-repeat;
+
+					background-size: contain;
+					width: 40%;
+					height: 20px;
+					position: relative;
+					bottom: 15px;
+					left:40%;
+				}
+				#stick{
+					width: 0px;
+					height: 6px;
+					background: black;
+					position: absolute;
+					left: 40px;
+					bottom: 200px;
+					transform: rotate(-90deg);
+					transform-origin: 0 6px;
+					/*transition: 0.5s;*/
+				}
+			
+				#clic{
+					width: 44px;
+					height: 40px;
+					position:absolute;
+					left:720px;
+					top:20px;
+					z-index: 3;
+					background: url(img/voiceUp.png);
+					background-size: 40px 40px;
+					background-repeat: no-repeat;
+				}
+				
+			
+				
+				#shade{ width:1210px; height:1000px; position:absolute; left:0; top:0; opacity:0.9; z-index:2;}
+				#box{ margin:200px 510px; width:180px; height:200px; background:#ADD8E6; border:2px solid #5F9EA0; border-radius:6px;text-align:center; color:#fff; display:none; }
+				#box p{ text-align:center;font-size:18px;color:	#FFFFFF;}
+				#s1{position: relative;top: 0;}
+				#s2{position: relative;top: 20px;}
+				#score1{float:right; display:inline;margin-right: 55px;}
+				#max_score{float:right; display:inline;margin-right: 45px;}
+				#btn{ margin-top:34px;font-size:16px; color:#fff; height:30px; border:2px solid #20B2AA; border-radius:4px; background:	#48D1CC;}
+
+				#introdunction{ width:200px; height:100px; font-size:16px; color:#fff; position:absolute; left:800px; top:220px;}
+
+				#zhezhao{  height:700px; width:100%; background:#fff; opacity:0.3; position:absolute;left:0; top:0; z-index:1; display:none;}
+			</style>
+		</head>
+		<body>
+			<div id="wrap">
+				<div id="gameContent">
+					<div id="leftdiv"></div>
+					<div id="middlediv">
+						<div id="star"></div>
+					</div>
+					<div id="rightdiv"></div>
+					<div id="hero"></div>
+					<div id="stick"></div>
+
+				</div>
+			</div>
+
+
+			<div id="score">0</div>
+			<div id="zhezhao"></div>
+
+			<input id="clic" type="button"  />
+
+			<div id="shade">
+				 <div id="box">
+		            <p>游戏结束！</p>
+		            <div id = "s1">分数:<div id="score1">0</div></div>     
+		            <div id = "s2">历史最高:<div id="max_score">0</div></div>     
+		            <input id="btn" type="button" value="重新开始" />
+		        </div>	
+			</div>
+		
+			<div id="introdunction">
+				玩法说明：<br/>
+				1.点击鼠标左键按下，棍子加长，鼠标左键抬起，棍子长度不再增加。<br/>
+				2.当棍子的另一端落在第二个柱子上的时候，游戏继续。<br/>
+				2.当棍子落下的时候，长度如果超出了第二个柱子，或者长度小于第二个柱子的左边缘，游戏结束。<br/>
+			</div>
+			<audio id="music" autoplay="autoplay" loop>
+				<source src="img/music.mp3" type="audio/ogg" />
+			
+				该浏览器不支持背景音乐播放！
+			</audio>
+			<audio id="grow" autoplay="autoplay" loop>
+				<source src="img/gunzi.m4a" type="audio/ogg" />
+				该浏览器不支持背景音乐播放！
+			</audio>
+			<audio id="failure" >
+	 	 	<source src="img/failure.mp3" type="audio/ogg" />
+			该浏览器不支持背景音乐播放！
+			</audio>
+			<script>
+				/*
+				需求：
+		--1.随时间增加速度。
+		--2.在柱子中间增加星星，如果棍子到达可以多增加一分  
+		3.历史记录:历史最高可以计算出来,每次闯关可以将最高记录显示出来。
+		4.音效添加，可以用按钮关闭音效，人物掉下去可以添加音效。
+		--5.游戏失败，可以让柱子抖动一下，增加趣味。
+
+		//4.22
+		1. 伸棍子的按钮
+		--2. cookies历史记录
+		--3.超过分数难度增加
+		4.按钮音效
+
+				*/ 
+				var timer = null;
+				var onoff = true;
+				var isPlaying = false;
+				var star = false;
+				var kk = 0;
+				var num = 0;
+				var step = 0;
+				var score = 0;//本局分数v
+				var nextstar = 0;
+				var fourty=20;
+				var stick = document.getElementById("stick");
+				var hero = document.getElementById("hero");
+				var gameContent = document.getElementById("gameContent");
+				var leftdiv = document.getElementById("leftdiv");
+				var middlediv = document.getElementById("middlediv");
+				var rightdiv = document.getElementById("rightdiv");
+				var oScore = document.getElementById("score");
+				var score1 = document.getElementById("score1");
+				var maxscore = document.getElementById("max_score");
+				var box = document.getElementById("box");
+				var btn = document.getElementById("btn");
+				var box2 = document.getElementById("box2");
+				var cl=document.getElementById("clic");
+				var failure = document.getElementById("failure");
+				var record=0;//记录画布位置
+				var back=false;
+				var music = document.getElementById("music");
+				var gunzi=document.getElementById("grow");
+				var star=document.getElementById("star");
+				var music = document.getElementById("music");
+				middlediv.style.width = creatNum(fourty,80) + "px";
+				middlediv.style.left = creatNum(80,220) + "px";
+				gunzi.pause();
+				music.volume=0.1;
+				cl.onclick=function(ev){
+                      console.log("1");
+					cl.style.background=(back?("url(img/voiceUp.png)" ):("url(img/voiceDown.png)" ));
+					
+					cl.style.backgroundSize="contain";
+					(back?music.play():music.pause());
+
+					back=!back;
+					if (back==1)
+					{console.log("sucess");
+						setCookie("audio1",1);}
+					else {setCookie("audio1",0);}
+					ev.stopPropagation();
+
+				};
+				
+				
+				btn.onclick=function(){
+				    window.location.reload();	
+					// console.log("1");
+				};
+
+				
+				
+				document.onmousedown = function(event){   //与鼠标交互
+					if(event.target.id=="clic"	)
+						{
+							return;
+						}
+					if(isPlaying){
+						return;
+					}
+					if(back==0)
+								{	gunzi.play();
+								}
+					console.log("2");
+					//var text=true;
+					timer = setInterval(function(){
+						//console.log(text);
+						//text=!text;
+						kk += 1;
+						num += 0.2*kk^0.03;//需求1
+					//num=middlediv.offsetLeft-40+middlediv.offsetWidth/2;  //调试
+						stick.style.width = num+"px";
+						if(score > 15){
+							middlediv.style.display='none';
+						}
+						
+
+						// hero.style.left= (true ? 70 : 90) + 'px';
+					},10)   //
+				}
+				document.onmouseup = function(){
+					if(event.target.id=="clic"	)
+						{
+							return;
+						}
+														gunzi.pause();
+
+					if(isPlaying){
+						return;
+					}
+					middlediv.style.display='block';
+					clearInterval(timer);
+					middleLeft = middlediv.offsetLeft;
+					isPlaying = true;
+
+					next = creatNext();
+					rightdiv.style.width = next[1] + "px";
+					rightdiv.style.left = next[0] + "px";
+					
+				
+					stick.style.transition = "0.5s";
+					stick.style.transform = "rotate(0deg)";
+
+					
+					
+					
+					if(num<middlediv.offsetLeft-40 || num>middlediv.offsetLeft+middlediv.offsetWidth-40){
+						console.log("失败");
+						onoff = false;
+
+						console.log(middlediv.style.left)
+						record1=parseInt(middlediv.style.left) - 10 + 'px';
+						record2=parseInt(middlediv.style.left) + 10 + 'px';
+						setTimeout(doudong,1000);
+					
+
+					}
+					if(num>middlediv.offsetLeft-40+middlediv.offsetWidth*0.4&&num<middlediv.offsetLeft-40+middlediv.offsetWidth*0.6){
+						//这里加点特效
+						console.log("star");
+						star= true;
+					}
+
+				}
+				
+				 function doudong (){
+					 	var a=true;
+						setInterval(function() {  
+							////console.log(record1)
+							//console.log(record2)
+
+							middlediv.style.left = parseInt((a ? record1 : record2)) + 'px';  
+							a = !a;  
+						}, 10);
+										}
+				
+				stick.addEventListener("transitionend",function(){  /////***********
+					if(onoff){//游戏成功
+						score++;
+						if(star==true)
+							{
+								score++;
+								star=false;
+							}
+						oScore.innerHTML = score;//分数加一
+						hero.style.transition = "0.6s";
+						hero.style.left = middlediv.offsetLeft + "px";
+        //alert(getCookie("username"));
+						//nextstar=creatStar();
+						//star.style.left=nextstar+"px";
+						
+						if (score>parseInt(getCookie("username")))
+						{
+							setCookie("username",score) ;
+						}
+
+					}else{
+		//	    		alert("游戏失败动画");
+
+						hero.style.transition = "0.6s";
+						hero.style.left = num + "px";
+						box.style.display = "block";
+						score1.innerHTML = score;
+						console.log(parseInt(getCookie("username")));
+						maxscore.innerHTML = parseInt(getCookie("username"));
+						document.getElementById("zhezhao").style.display="block";
+						
+					}
+				})
+				
+				//初始化
+					if ((getCookie("username")==null))
+						{
+							console.log("1");
+							setCookie("username",score) ;
+						}
+				
+				if( (getCookie("audio1")==null) )
+					{
+						console.log("666") ;
+						
+					}
+				else {
+											console.log("777") ;
+					console.log("audio"+parseInt(getCookie("audio1")));
+					if (parseInt((getCookie("audio1")))==0)
+						{
+							music.play();
+							cl.style.background="url(img/voiceUp.png)" ;
+						}
+else						{
+							music.pause();
+							cl.style.background="url(img/voiceDown.png)" ;
+														back=!back;
+
+						}
+				
+					cl.style.backgroundSize="contain";
+				}				
+				
+				hero.addEventListener("transitionend",function(ev){
+					if(onoff){//如果成功让画布继续变化
+
+
+						gameContent.style.transition = "0.6s";
+						gameContent.style.left = -middlediv.offsetLeft + "px";
+						step = 1;
+						record= middlediv.style.left;
+
+					}else{
+					//结束动画:英雄掉落，棍子偏转30度
+						//console.log(record);
+						hero.style.transition = "0.6s";
+						hero.style.top = 400 + "px";
+						stick.style.transition = "0.5s";
+						stick.style.transform = "rotate(89deg)";
+						music.pause();
+						if (back==0)
+						failure.play();
+					}
+					ev.stopPropagation();
+				})
+
+				gameContent.addEventListener("transitionend",function(){//应该也是成功后的事件发生器
+					if(step == 1){
+						gameContent.style.transition = "none";
+						gameContent.style.left = 0;
+						hero.style.transition = "none";
+						hero.style.left = 0;
+						stick.style.transition = "none";
+						stick.style.width = 0;
+						stick.style.transform = "rotate(-90deg)";
+
+						leftdiv.style.width = middlediv.offsetWidth + "px";
+
+						middlediv.style.width = next[1] + "px"; 
+						middlediv.style.left = next[0] - middleLeft + "px"; 
+      
+					
+						//star.style.display="block";
+						isPlaying = false;
+/*
+						console.log("middlediv.offsetLeft:"+middlediv.offsetLeft);
+						console.log("middlediv.offsetWidth:"+middlediv.offsetWidth);						console.log("star.style.left:"+star.style.left);
+					star.style.left = middlediv.offsetLeft-40+middlediv.offsetWidth*0.4+"px";//产生星星
+						console.log("star.style.left:"+star.style.left);
+					star.style.display="block";
+			*/		
+					
+
+						
+						
+						
+						num = 0;
+						step = 0;
+						kk = 0;
+					}
+
+				})
+
+				function creatNum(start,end){//产生特定范围内的随机数
+					return parseInt(Math.random()*(end-start)+start)
+				}
+				function creatNext(){//产生下一个柱子
+					var iWidth = creatNum(fourty,80);//20-80
+					var iLeft = creatNum(300,220+middleLeft);
+					return [iLeft,iWidth];
+				}
+				
+			
+				
+	 //下面是对cookied的操作
+		//写cookies
+		function setCookie(name,value)
+				{
+					var Days=30;
+					var exp = new Date();
+					exp.setTime(exp.getTime() + Days*24*60*60*1000);
+					document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+				}
+
+		//读取cookies
+	 function getCookie(name)
+				{
+				var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+					if(arr=document.cookie.match(reg))
+						return unescape(arr[2]);
+					else
+						return null;
+				}
+
+		//删除cookies
+		function delCookie(name)
+		{
+		 var exp = new Date();
+		 exp.setTime(exp.getTime() - 1);
+		 var cval=getCookie(name);
+		 if(cval!=null)
+		  document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+		}
+		//使用示例
+		//setCookie("username",0) ;
+		//setCookie("username",40) ;
+		//alert(getCookie("username"));
+
+
+			</script>
+		</body>
+		</html>
